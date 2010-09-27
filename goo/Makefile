@@ -9,4 +9,4 @@ goop.bin: goop.S
 	$(GCC) -mthumb -c -o goop.o goop.S
 	../misc/machdump goop.o goop.bin
 clean:
-	rm -f .ran_zero one.dylib *.pyc
+	rm -f .ran_zero goop.bin one.dylib *.pyc
