@@ -10,6 +10,9 @@ bs/iPhone2,1_4.0.1/launchd
 where cache is /System/Library/Caches/com.apple.dyld/dyld_shared_cache_armv[67], launchd is /sbin/launchd, and kern is the decrypted kernel.  Note that you can get 'kern' on platforms like the iPhone 4 where we don't have keys yet by using /dev/kmem and bs/unload.py, but there's a chance the kernel already overwrote __LINKEDIT with crap.
 
 3. config/config.py iPhone2,1_4.0.1
-4. make
-5. fix the places where you need to copy headers from OS X and I fail at documentation, goto 4
-6. look at cff/out.pdf
+4. Prepare your rootkit/jailbreak filesystem under install/fs and run 'make tarball' under install/ (hint, make sure everything in the tarball is owned by root or things will prboably break)
+5. make 
+6. Fix the places where you need to copy headers from OS X and I fail at documentation, goto 5
+7. grab copies of cff/out.pdf and install/wad.bin and drop them in your webroot
+8. profit
+

@@ -10,3 +10,7 @@ config.json
 outpad
 gvalue.txt
 gvalue2.txt
+fs/
+bs/
+sdk/
+riot.tar.xz
