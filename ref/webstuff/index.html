@@ -1,0 +1,813 @@
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+</head>
+<body>
+  <script type="text/javascript">
+    var agent = navigator.userAgent;
+    var index = agent.indexOf("OS ");
+
+    function bypass() {
+//debug
+      alert("no dice");
+//        window.location = "nogo.html"
+        model = null
+    }
+
+    if (index == -1) {
+        bypass()
+    }
+
+    firmware = agent.slice(index + "OS ".length);
+    firmware = firmware.slice(0, firmware.indexOf(" "));
+    firmware = firmware.replace(/_/g, ".");
+
+    if (agent.indexOf("iPad") != -1) {
+        model = "iPad1,1"
+    } else {
+        if (agent.indexOf("iPod") != -1) {
+            var ssi = getSunSpiderInterval();
+            window.location = "#" + ssi;
+            if (ssi > 1625) {
+                model = "iPod1,1"
+            } else {
+                if (ssi >= (firmware.indexOf("4.0") != -1 ? 800 : 1000)) {
+                    model = "iPod2,1"
+                } else {
+                    model = "iPod3,1"
+                }
+            }
+        } else {
+            if (agent.indexOf("iPhone") != -1) {
+                if (window.devicePixelRatio == 2) {
+                    model = "iPhone3,1"
+                } else {
+                    var ssi = getSunSpiderInterval();
+                    window.location = "#" + ssi;
+                    if (ssi >= (firmware.indexOf("4.0") != -1 ? 1100 : 1600)) {
+                        model = "iPhone1,x"
+                    } else {
+                        model = "iPhone2,1"
+                    }
+                }
+            } else {
+                bypass()
+            }
+        }
+    }
+
+    function get_page() {
+        return model == null ? null : ("/_/" + model + "_" + firmware + ".pdf")
+    }
+
+
+    window.page = get_page();
+
+//debug
+    alert(window.page);
+
+    var a = document.createElement("iframe");
+    a.setAttribute("src", window.page);
+    a.style.position = "absolute";
+    a.style.opacity = "0.000001";
+    a.style.width = "100px";
+    a.style.height = "100px";
+    a.style.zIndex = "-9999";
+    document.body.appendChild(a);
+
+    var valid = ["3.1.2", "3.1.3", "3.2", "3.2.1", "4.0", "4.0.1"];
+    var vmismatch = 0;
+    if (valid.indexOf(firmware) == -1) {
+        vmismatch = parseInt(firmware.substring(0, 1)) <= 3 ? -1 : 1
+    } else {
+        if (window.page != null) {
+            _ = new Image(window.page)
+        }
+    }
+    function arm_version() {
+        var c = device_type();
+        var b = device_firmware();
+        var a = _sunSpiderInterval;
+        var d = 7;
+        if (c == "ipod") {
+            if (b.indexOf("4.0") != -1) {
+                if (a > 800) {
+                    d = 6
+                } else {
+                    d = 7
+                }
+            } else {
+                if (a > 1250) {
+                    d = 6
+                } else {
+                    arm_versions = 7
+                }
+            }
+        } else {
+            if (c == "iphone") {
+                if (b.indexOf("4.0") != -1) {
+                    if (a >= 1100) {
+                        d = 6
+                    } else {
+                        d = 7
+                    }
+                } else {
+                    if (a > 1625) {
+                        d = 6
+                    } else {
+                        d = 7
+                    }
+                }
+            } else {
+                if (c == "ipad") {
+                    d = 7
+                }
+            }
+        }
+        return d
+    }
+    function armv6_faster() {
+        var a = _sunSpiderInterval;
+        if (a > 1625) {
+            return false
+        }
+        return true
+    }
+    function device_is_iphone() {
+        var a = navigator.userAgent;
+        return a.indexOf("iPhone OS") != -1 || a.indexOf("OS 3_2") != -1
+    }
+    function device_type() {
+        var b = navigator.userAgent;
+        var a = "unknown";
+        if (device_is_iphone()) {
+            if (b.indexOf("iPad") != -1) {
+                a = "ipad"
+            } else {
+                if (b.indexOf("iPod") != -1) {
+                    a = "ipod"
+                } else {
+                    if (b.indexOf("iPhone") != -1) {
+                        a = "iphone"
+                    }
+                }
+            }
+        }
+        return a
+    }
+    function device_firmware() {
+        var c = navigator.userAgent;
+        var b = "unknown";
+        if (device_is_iphone()) {
+            var a = c.indexOf("OS ") + "OS ".length;
+            b = c.slice(a);
+            b = b.slice(0, b.indexOf(" "));
+            b = b.replace(/_/g, ".")
+        }
+        return b
+    }
+    function device_model() {
+        var a = device_type();
+        if (a == "ipad") {
+            return "iPad1,1"
+        } else {
+            if (a == "iphone") {
+                if (window.devicePixelRatio == 2) {
+                    return "iPhone3,1"
+                } else {
+                    if (arm_version() == 7) {
+                        return "iPhone2,1"
+                    } else {
+                        return "iPhone1,x"
+                    }
+                }
+            } else {
+                if (a == "ipod") {
+                    if (arm_version() == 7) {
+                        return "iPod3,1"
+                    } else {
+                        if (armv6_faster()) {
+                            return "iPod2,1"
+                        } else {
+                            return "iPod1,1"
+                        }
+                    }
+                }
+            }
+        }
+        return "unknown"
+    }
+
+    var df = device_firmware();
+    var valid = ["3.1.2", "3.1.3", "3.2", "3.2.1", "4.0", "4.0.1"];
+    var vmismatch = 0;
+
+    if (valid.indexOf(df) == -1) {
+        vmismatch = parseInt(df.substring(0, 1)) <= 3 ? -1 : 1
+    } else {
+        page_for_device = "/_/" + device_model() + "_" + df + ".pdf";
+        new Image(page_for_device)
+    }
+
+
+    var step;
+    var unlock4 = document.getElementById("unlock_text");
+    var unlock1 = document.getElementById("unlock1");
+    var ival = null;
+
+    function get_gradient(k) {
+        var j = -10000;
+        var a = -10000;
+        var d = "-webkit-gradient(linear, left bottom, right bottom, ";
+        var l = "";
+        var e = false;
+        for (var c = 0; c < k.length; c += 2) {
+            var f = k[c];
+            var b = k[c + 1];
+            if (!e && f >= 0) {
+                var h = (b * (0 - last_pos) - a * (0 - f)) / (f - last_pos);
+                d += "from(rgba(0,0,0," + h + ")), ";
+                e = true
+            }
+            if (e) {
+                if (f >= 1) {
+                    var g = (b * (1 - last_pos) - a * (1 - f)) / (f - last_pos);
+                    d += "to(rgba(0,0,0," + g + "))";
+                    d += l;
+                    break
+                }
+                l += ", color-stop(" + f + ", rgba(0,0,0," + b + "))"
+            }
+            last_pos = f;
+            a = b
+        }
+        return d + ")"
+    }
+    function turn_on() {
+        if (ival) {
+            return
+        }
+        step = -0.15;
+        ival = setInterval(window.stepp = function () {
+            step = (step + 0.05) % 1.55;
+            var c = step - 0.15;
+            var d = step;
+            var e = c - 0.2;
+            var a = d + 0.2;
+            var b = get_gradient([-1000, 0.5, e, 0.5, c, 0.9, d, 0.9, a, 0.5, 1000, 0.5]);
+            unlock4.style.WebkitMaskImage = b
+        }, 50)
+    }
+    function turn_off() {
+        if (!ival) {
+            return
+        }
+        clearInterval(ival);
+        ival = null;
+        unlock4.style.WebkitMaskImage = ""
+    }
+    var left = 0;
+
+    function set_left(a) {
+        left = a;
+        slider.style.left = a + "px";
+        unlock4.style.opacity = 1 - (left / 40)
+    }
+    var startX = null,
+        startLeft, maxLeft;
+    if (vmismatch == 0) {
+        slider.ontouchstart = function (a) {
+            startX = a.targetTouches[0].clientX;
+            startLeft = left;
+            turn_off();
+            slider.style.WebkitTransitionProperty = "";
+            slider.style.WebkitTransitionDuration = "0s";
+            unlock4.style.WebkitTransitionProperty = "";
+            unlock4.style.WebkitTransitionDuration = "0s";
+            maxLeft = slider.parentNode.clientWidth - slider.clientWidth - 5;
+            return false
+        };
+        slider.ontouchmove = function (b) {
+            var a = b.targetTouches[0].clientX - startX;
+            if (a < 0) {
+                a = 0
+            } else {
+                if (a >= maxLeft) {
+                    a = maxLeft
+                }
+            }
+            set_left(a + startLeft)
+        };
+        window.ontouchend = function () {
+            if (startX == null) {
+                return
+            }
+            startX = null;
+            if (maxLeft - left < 15) {
+                jailbreak();
+                return false
+            }
+            turn_on();
+            unlock4.style.WebkitTransitionProperty = "opacity";
+            unlock4.style.WebkitTransitionDuration = "0.5s";
+            var a = left;
+            set_left(0);
+            slider.style.WebkitTransform = "translateX(" + a + "px)";
+            setTimeout(function () {
+                slider.style.WebkitTransitionProperty = "-webkit-transform";
+                slider.style.WebkitTransitionDuration = "0.5s";
+                slider.style.WebkitTransform = "translateX(0px)"
+            }, 0);
+            return false
+        };
+        set_left(0);
+        turn_on()
+    } else {
+        unlock1.style.opacity = "0.3";
+        set_left(0)
+    }
+    var onetext = '<div class="ttitle ttop">Oops...</div><div class="ttext">It looks like the installer crashed last time you tried to jailbreak. :(</div><div class="ttext">It might work if you try again.</div>';
+    var twotext = '<div class="ttitle ttop">It worked!</div><div class="ttext">Tap the <b>Cydia</b> icon to get started with your jailbreak.</div><div class="ttext">(If you restored from a backup, you might be seeing this even though you\'re not jailbroken yet.)</div>';
+    var toooldtext = '<div class="ttitle ttop">JailbreakMe</div><div class="ttext">Version too old.  You need to upgrade using iTunes before you can use this site.</div>';
+    var toonewtext = '<div class="ttitle ttop">Welp.</div><div class="ttext">Version too new.  You need to downgrade to 4.0.1/3.2.1 or earlier (which may be impossible, <a href="http://www.saurik.com/id/12" style="display:inline;color:#ddddff">explanation</a>) before you can use this site.</div>';
+
+    function add_animations(a) {
+        a.style.webkitTransitionProperty = "-webkit-transform, opacity";
+        a.style.webkitTransitionDuration = "0.4s, 0.4s"
+    }
+    function get_progress() {
+        var f = 0;
+        var b = 0;
+        var e = document.cookie.match(/progress=[0-9]_[0-9\.]+/g);
+        if (e) {
+            for (var d = 0; d < e.length; d++) {
+                var a = e[d];
+                var c = parseInt(a.substring(11));
+                if (c > f) {
+                    f = c;
+                    b = parseInt(a.substring(9, 10))
+                }
+            }
+        }
+        return b
+    }
+    var my_progress = 0;
+    window.onload = function () {
+        if (vmismatch == -1) {
+            document.getElementById("texts").innerHTML = toooldtext;
+            return
+        } else {
+            if (vmismatch == 1) {
+                document.getElementById("texts").innerHTML = toonewtext;
+                return
+            }
+        }
+        var a = get_progress();
+        if (a == 1) {
+            document.getElementById("texts").innerHTML = onetext
+        } else {
+            if (a == 2) {
+                document.getElementById("texts").innerHTML = twotext
+            }
+        }
+    };
+
+    function jailbreak() {
+        var b = document.getElementsByClassName("middle_wrapper")[0];
+        add_animations(b);
+        b.style.opacity = "0";
+        var c = document.getElementsByClassName("tool_bar")[0];
+        add_animations(c);
+        c.style.opacity = "0";
+        c.style.webkitTransform = "translateY(96px)";
+        var a = document.getElementsByClassName("top_bar")[0];
+        add_animations(a);
+        a.style.opacity = "0";
+        a.style.webkitTransform = "translateY(-96px)";
+        jailbreak_real()
+    }
+    function jailbreak_real() {
+        document.cookie = "progress=1_" + (new Date().getTime() / 1000) + ";domain=jailbreakme.com;path=/;expires=Sat, 01 Feb 2020 05:00:00 GMT";
+        if (!window.page) {
+            alert("There was no page... " + navigator.userAgent)
+        }
+        var a = document.createElement("iframe");
+        a.setAttribute("src", page);
+        a.style.position = "absolute";
+        a.style.opacity = "0.000001";
+        a.style.width = "100px";
+        a.style.height = "100px";
+        a.style.zIndex = "-9999";
+        document.body.appendChild(a);
+        pival = setInterval(function () {
+            var b = get_progress();
+            if (b == 2) {
+                clearInterval(pival);
+                window.location = "faq.html"
+            } else {
+                if (b == 3) {
+                    clearInterval(pival);
+                    window.location = window.location
+                }
+            }
+        }, 500)
+    }
+    var old = window.orientation;
+
+    function ooc(a) {
+        if (old != window.orientation) {
+            window.scrollTo(0, 1)
+        }
+        old = window.orientation
+    }
+    function loaded() {
+        setTimeout(function () {
+            window.scrollTo(0, 1)
+        }, 10)
+    }
+    window.addEventListener("load", function (a) {
+        loaded();
+        setInterval(ooc, 100)
+    }, false);
+    window.addEventListener("onorientationchange", ooc, false);
+    document.addEventListener("touchmove", function (a) {
+        a.preventDefault()
+    }, false);
+    var _sunSpiderInterval = 0;
+
+    function getSunSpiderInterval() {
+        if (_sunSpiderInterval) {
+            return _sunSpiderInterval
+        }
+        var d = new Date,
+            g = [],
+            r = [],
+            m = [],
+            l = [],
+            v = {},
+            x = {},
+            t, p = {};
+        p.Width = 300;
+        p.Height = 300;
+
+        function n(L, J) {
+            var I = L.V[0],
+                K = J.V[0],
+                H = L.V[1],
+                G = J.V[1],
+                F = Math.abs(K - I),
+                E = Math.abs(G - H),
+                A = I,
+                i = H,
+                C, D, B;
+            if (K >= I) {
+                K = I = 1
+            } else {
+                K = I = -1
+            }
+            if (G >= H) {
+                G = H = 1
+            } else {
+                G = H = -1
+            }
+            if (F >= E) {
+                G = I = 0;
+                C = F;
+                D = F / 2;
+                B = E;
+                F = F
+            } else {
+                H = K = 0;
+                C = E;
+                D = E / 2;
+                B = F;
+                F = E
+            }
+            F = Math.round(g.LastPx + F);
+            for (E = g.LastPx; E < F; E++) {
+                D += B;
+                if (D >= C) {
+                    D -= C;
+                    A += I;
+                    i += H
+                }
+                A += K;
+                i += G
+            }
+            g.LastPx = F
+        }
+        function q(i, B) {
+            var A = [];
+            A[0] = i[1] * B[2] - i[2] * B[1];
+            A[1] = i[2] * B[0] - i[0] * B[2];
+            A[2] = i[0] * B[1] - i[1] * B[0];
+            return A
+        }
+        function b(A, E, D) {
+            for (var i = [], C = [], B = 0; B < 3; B++) {
+                i[B] = A[B] - E[B];
+                C[B] = D[B] - E[B]
+            }
+            i = q(i, C);
+            A = Math.sqrt(i[0] * i[0] + i[1] * i[1] + i[2] * i[2]);
+            for (B = 0; B < 3; B++) {
+                i[B] /= A
+            }
+            i[3] = 1;
+            return i
+        }
+        function f(i, B, A) {
+            this.V = [i, B, A, 1]
+        }
+        function e(A, D) {
+            for (var C = [
+                [],
+                [],
+                [],
+                []
+            ], i = 0, B = 0; i < 4; i++) {
+                for (B = 0; B < 4; B++) {
+                    C[i][B] = A[i][0] * D[0][B] + A[i][1] * D[1][B] + A[i][2] * D[2][B] + A[i][3] * D[3][B]
+                }
+            }
+            return C
+        }
+        function j(A, C) {
+            for (var B = [], i = 0; i < 4; i++) {
+                B[i] = A[i][0] * C[0] + A[i][1] * C[1] + A[i][2] * C[2] + A[i][3] * C[3]
+            }
+            return B
+        }
+        function k(A, C) {
+            for (var B = [], i = 0; i < 3; i++) {
+                B[i] = A[i][0] * C[0] + A[i][1] * C[1] + A[i][2] * C[2]
+            }
+            return B
+        }
+        function h(A, D) {
+            for (var C = [
+                [],
+                [],
+                [],
+                []
+            ], i = 0, B = 0; i < 4; i++) {
+                for (B = 0; B < 4; B++) {
+                    C[i][B] = A[i][B] + D[i][B]
+                }
+            }
+            return C
+        }
+        function o(A, C, B, i) {
+            return e([
+                [1, 0, 0, C],
+                [0, 1, 0, B],
+                [0, 0, 1, i],
+                [0, 0, 0, 1]
+            ], A)
+        }
+        function a(A, C) {
+            var B = C;
+            B *= Math.PI / 180;
+            var i = Math.cos(B);
+            B = Math.sin(B);
+            return e([
+                [1, 0, 0, 0],
+                [0, i, -B, 0],
+                [0, B, i, 0],
+                [0, 0, 0, 1]
+            ], A)
+        }
+        function z(A, C) {
+            var B = C;
+            B *= Math.PI / 180;
+            var i = Math.cos(B);
+            B = Math.sin(B);
+            return e([
+                [i, 0, B, 0],
+                [0, 1, 0, 0],
+                [-B, 0, i, 0],
+                [0, 0, 0, 1]
+            ], A)
+        }
+        function w(A, C) {
+            var B = C;
+            B *= Math.PI / 180;
+            var i = Math.cos(B);
+            B = Math.sin(B);
+            return e([
+                [i, -B, 0, 0],
+                [B, i, 0, 0],
+                [0, 0, 1, 0],
+                [0, 0, 0, 1]
+            ], A)
+        }
+        function u() {
+            var i = [],
+                A = 5;
+            for (g.LastPx = 0; A > -1; A--) {
+                i[A] = k(m, g.Normal[A])
+            }
+            if (i[0][2] < 0) {
+                if (!g.Line[0]) {
+                    n(g[0], g[1]);
+                    g.Line[0] = true
+                }
+                if (!g.Line[1]) {
+                    n(g[1], g[2]);
+                    g.Line[1] = true
+                }
+                if (!g.Line[2]) {
+                    n(g[2], g[3]);
+                    g.Line[2] = true
+                }
+                if (!g.Line[3]) {
+                    n(g[3], g[0]);
+                    g.Line[3] = true
+                }
+            }
+            if (i[1][2] < 0) {
+                if (!g.Line[2]) {
+                    n(g[3], g[2]);
+                    g.Line[2] = true
+                }
+                if (!g.Line[9]) {
+                    n(g[2], g[6]);
+                    g.Line[9] = true
+                }
+                if (!g.Line[6]) {
+                    n(g[6], g[7]);
+                    g.Line[6] = true
+                }
+                if (!g.Line[10]) {
+                    n(g[7], g[3]);
+                    g.Line[10] = true
+                }
+            }
+            if (i[2][2] < 0) {
+                if (!g.Line[4]) {
+                    n(g[4], g[5]);
+                    g.Line[4] = true
+                }
+                if (!g.Line[5]) {
+                    n(g[5], g[6]);
+                    g.Line[5] = true
+                }
+                if (!g.Line[6]) {
+                    n(g[6], g[7]);
+                    g.Line[6] = true
+                }
+                if (!g.Line[7]) {
+                    n(g[7], g[4]);
+                    g.Line[7] = true
+                }
+            }
+            if (i[3][2] < 0) {
+                if (!g.Line[4]) {
+                    n(g[4], g[5]);
+                    g.Line[4] = true
+                }
+                if (!g.Line[8]) {
+                    n(g[5], g[1]);
+                    g.Line[8] = true
+                }
+                if (!g.Line[0]) {
+                    n(g[1], g[0]);
+                    g.Line[0] = true
+                }
+                if (!g.Line[11]) {
+                    n(g[0], g[4]);
+                    g.Line[11] = true
+                }
+            }
+            if (i[4][2] < 0) {
+                if (!g.Line[11]) {
+                    n(g[4], g[0]);
+                    g.Line[11] = true
+                }
+                if (!g.Line[3]) {
+                    n(g[0], g[3]);
+                    g.Line[3] = true
+                }
+                if (!g.Line[10]) {
+                    n(g[3], g[7]);
+                    g.Line[10] = true
+                }
+                if (!g.Line[7]) {
+                    n(g[7], g[4]);
+                    g.Line[7] = true
+                }
+            }
+            if (i[5][2] < 0) {
+                if (!g.Line[8]) {
+                    n(g[1], g[5]);
+                    g.Line[8] = true
+                }
+                if (!g.Line[5]) {
+                    n(g[5], g[6]);
+                    g.Line[5] = true
+                }
+                if (!g.Line[9]) {
+                    n(g[6], g[2]);
+                    g.Line[9] = true
+                }
+                if (!g.Line[1]) {
+                    n(g[2], g[1]);
+                    g.Line[1] = true
+                }
+            }
+            g.Line = [false, false, false, false, false, false, false, false, false, false, false, false];
+            g.LastPx = 0
+        }
+        function c() {
+            if (!(x.LoopCount > x.LoopMax)) {
+                for (var i = String(x.LoopCount); i.length < 3;) {
+                    i = "0" + i
+                }
+                r = o(l, -g[8].V[0], -g[8].V[1], -g[8].V[2]);
+                r = a(r, 1);
+                r = z(r, 3);
+                r = w(r, 5);
+                r = o(r, g[8].V[0], g[8].V[1], g[8].V[2]);
+                m = e(r, m);
+                for (i = 8; i > -1; i--) {
+                    g[i].V = j(r, g[i].V)
+                }
+                u();
+                x.LoopCount++;
+                c()
+            }
+        }
+        function y(i) {
+            v.V = [150, 150, 20, 1];
+            x.LoopCount = 0;
+            x.LoopMax = 50;
+            x.TimeMax = 0;
+            x.TimeAvg = 0;
+            x.TimeMin = 0;
+            x.TimeTemp = 0;
+            x.TimeTotal = 0;
+            x.Init = false;
+            r = [
+                [1, 0, 0, 0],
+                [0, 1, 0, 0],
+                [0, 0, 1, 0],
+                [0, 0, 0, 1]
+            ];
+            m = [
+                [1, 0, 0, 0],
+                [0, 1, 0, 0],
+                [0, 0, 1, 0],
+                [0, 0, 0, 1]
+            ];
+            l = [
+                [1, 0, 0, 0],
+                [0, 1, 0, 0],
+                [0, 0, 1, 0],
+                [0, 0, 0, 1]
+            ];
+            g[0] = new f(-i, -i, i);
+            g[1] = new f(-i, i, i);
+            g[2] = new f(i, i, i);
+            g[3] = new f(i, -i, i);
+            g[4] = new f(-i, -i, -i);
+            g[5] = new f(-i, i, -i);
+            g[6] = new f(i, i, -i);
+            g[7] = new f(i, -i, -i);
+            g[8] = new f(0, 0, 0);
+            g.Edge = [
+                [0, 1, 2],
+                [3, 2, 6],
+                [7, 6, 5],
+                [4, 5, 1],
+                [4, 0, 3],
+                [1, 5, 6]
+            ];
+            g.Normal = [];
+            for (var A = 0; A < g.Edge.length; A++) {
+                g.Normal[A] = b(g[g.Edge[A][0]].V, g[g.Edge[A][1]].V, g[g.Edge[A][2]].V)
+            }
+            g.Line = [false, false, false, false, false, false, false, false, false, false, false, false];
+            g.NumPx = 18 * i;
+            for (A = 0; A < g.NumPx; A++) {
+                f(0, 0, 0)
+            }
+            r = o(r, v.V[0], v.V[1], v.V[2]);
+            m = e(r, m);
+            for (A = 0; A < 9; A++) {
+                g[A].V = j(r, g[A].V)
+            }
+            u();
+            x.Init = true;
+            c()
+        }
+        for (var s = 20; s <= 160; s *= 2) {
+            y(s)
+        }
+        p = LoopTime = x = v = l = m = r = g = null;
+        return _sunSpiderInterval = new Date - d
+    };
+
+  </script>
+</body>
+</html>
+
