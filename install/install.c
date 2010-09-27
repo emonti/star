@@ -435,7 +435,9 @@ void add_afc2() {
 static void kill_installd_and_lockdownd_and_do_uicache() {
     killall("installd");
     //system("touch /Applications");
-    system("/bin/su -c /usr/bin/uicache mobile");
+    system("/var/kit/prison_riot");
+//    system("/bin/su -c /usr/bin/uicache mobile");
+//    system("reboot");
     //notify_post("com.apple.mobile.application_installed");
     //killall("lockdownd");
 }
