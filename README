@@ -1,6 +1,5 @@
 
-Below are comex's original instructions with a few minor modifications specifically related to
-emonti/star
+Below are comex's original instructions with a few minor modifications specifically related to emonti/star
 
 Note that unlike comex's original "star", this version has you prepare your own jailbreak filesystem as noted in step 4. A copy of the original tar-xzipped jailbreak filesystem is included under ref/Cydia-4.0.1r2-Raw.txz
 
